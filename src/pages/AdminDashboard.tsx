@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import { Box, Typography, Button, Stack, Paper } from '@mui/material';
@@ -14,15 +14,15 @@ interface AdminPost {
 const AdminDashboard: React.FC = () => {
   const [posts, setPosts] = useState<AdminPost[]>([]);
 
-  const authHeaders = () => {
+  const authHeaders = useCallback(() => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
-  };
+  }, []);
 
-  const fetchAllPosts = async () => {
+  const fetchAllPosts = useCallback(async () => {
     const { data } = await axios.get(`${API_BASE_URL}/admin/posts`, { headers: authHeaders() });
     setPosts(data);
-  };
+  }, [authHeaders]);
 
   const deletePost = async (id: string) => {
     await axios.delete(`${API_BASE_URL}/admin/posts/${id}`, { headers: authHeaders() });
@@ -31,7 +31,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchAllPosts();
-  }, []);
+  }, [fetchAllPosts]);
 
   return (
     <Box p={2}>
